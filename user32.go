@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// +build windows
+
 package win
 
 import (
@@ -868,6 +870,7 @@ const (
 	WM_MOUSELAST              = 525
 	WM_MOUSEHOVER             = 0X2A1
 	WM_MOUSELEAVE             = 0X2A3
+	WM_CLIPBOARDUPDATE        = 0x031D
 )
 
 // mouse button constants
@@ -1217,6 +1220,18 @@ const (
 	DI_NORMAL      = DI_IMAGE | DI_MASK
 )
 
+// ExitWindowsEx flags
+const (
+	EWX_LOGOFF          = 0
+	EWX_SHUTDOWN        = 0x00000001
+	EWX_REBOOT          = 0x00000002
+	EWX_FORCE           = 0x00000004
+	EWX_POWEROFF        = 0x00000008
+	EWX_FORCEIFHUNG     = 0x00000010
+	EWX_RESTARTAPPS     = 0x00000040
+	EWX_HYBRID_SHUTDOWN = 0x00400000
+)
+
 type MONITORINFO struct {
 	CbSize    uint32
 	RcMonitor RECT
@@ -1483,6 +1498,7 @@ var (
 	libuser32 uintptr
 
 	// Functions
+	addClipboardFormatListener uintptr
 	adjustWindowRect           uintptr
 	beginDeferWindowPos        uintptr
 	beginPaint                 uintptr
@@ -1590,6 +1606,8 @@ var (
 	translateMessage           uintptr
 	updateWindow               uintptr
 	windowFromPoint            uintptr
+
+	exitWindowsEx uintptr
 )
 
 func init() {
@@ -1599,6 +1617,7 @@ func init() {
 	libuser32 = MustLoadLibrary("user32.dll")
 
 	// Functions
+	addClipboardFormatListener, _ = syscall.GetProcAddress(syscall.Handle(libuser32), "AddClipboardFormatListener")
 	adjustWindowRect = MustGetProcAddress(libuser32, "AdjustWindowRect")
 	beginDeferWindowPos = MustGetProcAddress(libuser32, "BeginDeferWindowPos")
 	beginPaint = MustGetProcAddress(libuser32, "BeginPaint")
@@ -1716,6 +1735,23 @@ func init() {
 	translateMessage = MustGetProcAddress(libuser32, "TranslateMessage")
 	updateWindow = MustGetProcAddress(libuser32, "UpdateWindow")
 	windowFromPoint = MustGetProcAddress(libuser32, "WindowFromPoint")
+
+	// codyguo
+	exitWindowsEx = MustGetProcAddress(libuser32, "ExitWindowsEx")
+
+}
+
+func AddClipboardFormatListener(hwnd HWND) bool {
+	if addClipboardFormatListener == 0 {
+		return false
+	}
+
+	ret, _, _ := syscall.Syscall(addClipboardFormatListener, 1,
+		uintptr(hwnd),
+		0,
+		0)
+
+	return ret != 0
 }
 
 func AdjustWindowRect(lpRect *RECT, dwStyle uint32, bMenu bool) bool {
@@ -2785,4 +2821,13 @@ func WindowFromPoint(Point POINT) HWND {
 		0)
 
 	return HWND(ret)
+}
+
+func ExitWindowsEx(uFlags, dwReason uint32) bool {
+	ret, _, _ := syscall.Syscall(exitWindowsEx, 2,
+		uintptr(uFlags),
+		uintptr(dwReason),
+		0)
+
+	return ret != 0
 }
