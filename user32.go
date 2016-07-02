@@ -1754,19 +1754,6 @@ func AddClipboardFormatListener(hwnd HWND) bool {
 	return ret != 0
 }
 
-func AddClipboardFormatListener(hwnd HWND) bool {
-	if addClipboardFormatListener == 0 {
-		return false
-	}
-
-	ret, _, _ := syscall.Syscall(addClipboardFormatListener, 1,
-		uintptr(hwnd),
-		0,
-		0)
-
-	return ret != 0
-}
-
 func AdjustWindowRect(lpRect *RECT, dwStyle uint32, bMenu bool) bool {
 	ret, _, _ := syscall.Syscall(adjustWindowRect, 3,
 		uintptr(unsafe.Pointer(lpRect)),
