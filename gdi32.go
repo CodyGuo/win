@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// +build windows
+
 package win
 
 import (
@@ -222,6 +224,15 @@ const (
 	PS_JOIN_BEVEL = 0x00001000
 	PS_JOIN_MITER = 0x00002000
 	PS_JOIN_MASK  = 0x0000F000
+)
+
+// Print constants
+const (
+	PRF_NONCLIENT  = 0x00000002
+	PRF_CLIENT     = 0x00000004
+	PRF_ERASEBKGND = 0x00000008
+	PRF_CHILDREN   = 0x00000010
+	PRF_OWNED      = 0x00000020
 )
 
 // Stock logical objects
@@ -958,54 +969,59 @@ var (
 	libgdi32 uintptr
 
 	// Functions
-	abortDoc             uintptr
-	bitBlt               uintptr
-	choosePixelFormat    uintptr
-	closeEnhMetaFile     uintptr
-	copyEnhMetaFile      uintptr
-	createBitmap         uintptr
-	createBrushIndirect  uintptr
-	createCompatibleDC   uintptr
-	createDC             uintptr
-	createDIBSection     uintptr
-	createFontIndirect   uintptr
-	createEnhMetaFile    uintptr
-	createIC             uintptr
-	deleteDC             uintptr
-	deleteEnhMetaFile    uintptr
-	deleteObject         uintptr
-	ellipse              uintptr
-	endDoc               uintptr
-	endPage              uintptr
-	extCreatePen         uintptr
-	getDeviceCaps        uintptr
-	getEnhMetaFile       uintptr
-	getEnhMetaFileHeader uintptr
-	getObject            uintptr
-	getPixel             uintptr
-	getStockObject       uintptr
-	getTextExtentExPoint uintptr
-	getTextExtentPoint32 uintptr
-	getTextMetrics       uintptr
-	lineTo               uintptr
-	moveToEx             uintptr
-	playEnhMetaFile      uintptr
-	rectangle            uintptr
-	resetDC              uintptr
-	restoreDC            uintptr
-	selectObject         uintptr
-	setBkMode            uintptr
-	setBrushOrgEx        uintptr
-	setPixel             uintptr
-	setPixelFormat       uintptr
-	setStretchBltMode    uintptr
-	setTextColor         uintptr
-	saveDC               uintptr
-	startDoc             uintptr
-	startPage            uintptr
-	stretchBlt           uintptr
-	swapBuffers          uintptr
-	textOut              uintptr
+	abortDoc               uintptr
+	bitBlt                 uintptr
+	choosePixelFormat      uintptr
+	closeEnhMetaFile       uintptr
+	copyEnhMetaFile        uintptr
+	createBitmap           uintptr
+	createCompatibleBitmap uintptr
+	createBrushIndirect    uintptr
+	createCompatibleDC     uintptr
+	createDC               uintptr
+	createDIBSection       uintptr
+	createFontIndirect     uintptr
+	createEnhMetaFile      uintptr
+	createIC               uintptr
+	deleteDC               uintptr
+	deleteEnhMetaFile      uintptr
+	deleteObject           uintptr
+	ellipse                uintptr
+	endDoc                 uintptr
+	endPage                uintptr
+	extCreatePen           uintptr
+	getDeviceCaps          uintptr
+	getDIBits              uintptr
+	getEnhMetaFile         uintptr
+	getEnhMetaFileHeader   uintptr
+	getObject              uintptr
+	getPixel               uintptr
+	getStockObject         uintptr
+	getTextExtentExPoint   uintptr
+	getTextExtentPoint32   uintptr
+	getTextMetrics         uintptr
+	getViewportOrgEx       uintptr
+	lineTo                 uintptr
+	moveToEx               uintptr
+	playEnhMetaFile        uintptr
+	polyline               uintptr
+	rectangle              uintptr
+	resetDC                uintptr
+	restoreDC              uintptr
+	selectObject           uintptr
+	setBkMode              uintptr
+	setBrushOrgEx          uintptr
+	setPixel               uintptr
+	setPixelFormat         uintptr
+	setStretchBltMode      uintptr
+	setTextColor           uintptr
+	setViewportOrgEx       uintptr
+	saveDC                 uintptr
+	startDoc               uintptr
+	startPage              uintptr
+	stretchBlt             uintptr
+	swapBuffers            uintptr
+	textOut                uintptr
 )
 
 func init() {
@@ -1019,6 +1035,7 @@ func init() {
 	closeEnhMetaFile = MustGetProcAddress(libgdi32, "CloseEnhMetaFile")
 	copyEnhMetaFile = MustGetProcAddress(libgdi32, "CopyEnhMetaFileW")
 	createBitmap = MustGetProcAddress(libgdi32, "CreateBitmap")
+	createCompatibleBitmap = MustGetProcAddress(libgdi32, "CreateCompatibleBitmap")
 	createBrushIndirect = MustGetProcAddress(libgdi32, "CreateBrushIndirect")
 	createCompatibleDC = MustGetProcAddress(libgdi32, "CreateCompatibleDC")
 	createDC = MustGetProcAddress(libgdi32, "CreateDCW")
@@ -1034,6 +1051,7 @@ func init() {
 	endPage = MustGetProcAddress(libgdi32, "EndPage")
 	extCreatePen = MustGetProcAddress(libgdi32, "ExtCreatePen")
 	getDeviceCaps = MustGetProcAddress(libgdi32, "GetDeviceCaps")
+	getDIBits = MustGetProcAddress(libgdi32, "GetDIBits")
 	getEnhMetaFile = MustGetProcAddress(libgdi32, "GetEnhMetaFileW")
 	getEnhMetaFileHeader = MustGetProcAddress(libgdi32, "GetEnhMetaFileHeader")
 	getObject = MustGetProcAddress(libgdi32, "GetObjectW")
@@ -1042,9 +1060,11 @@ func init() {
 	getTextExtentExPoint = MustGetProcAddress(libgdi32, "GetTextExtentExPointW")
 	getTextExtentPoint32 = MustGetProcAddress(libgdi32, "GetTextExtentPoint32W")
 	getTextMetrics = MustGetProcAddress(libgdi32, "GetTextMetricsW")
+	getViewportOrgEx = MustGetProcAddress(libgdi32, "GetViewportOrgEx")
 	lineTo = MustGetProcAddress(libgdi32, "LineTo")
 	moveToEx = MustGetProcAddress(libgdi32, "MoveToEx")
 	playEnhMetaFile = MustGetProcAddress(libgdi32, "PlayEnhMetaFile")
+	polyline = MustGetProcAddress(libgdi32, "Polyline")
 	rectangle = MustGetProcAddress(libgdi32, "Rectangle")
 	resetDC = MustGetProcAddress(libgdi32, "ResetDCW")
 	restoreDC = MustGetProcAddress(libgdi32, "RestoreDC")
@@ -1056,6 +1076,7 @@ func init() {
 	setPixelFormat = MustGetProcAddress(libgdi32, "SetPixelFormat")
 	setStretchBltMode = MustGetProcAddress(libgdi32, "SetStretchBltMode")
 	setTextColor = MustGetProcAddress(libgdi32, "SetTextColor")
+	setViewportOrgEx = MustGetProcAddress(libgdi32, "SetViewportOrgEx")
 	startDoc = MustGetProcAddress(libgdi32, "StartDocW")
 	startPage = MustGetProcAddress(libgdi32, "StartPage")
 	stretchBlt = MustGetProcAddress(libgdi32, "StretchBlt")
@@ -1123,6 +1144,15 @@ func CreateBitmap(nWidth, nHeight int32, cPlanes, cBitsPerPel uint32, lpvBits un
 		uintptr(cBitsPerPel),
 		uintptr(lpvBits),
 		0)
+
+	return HBITMAP(ret)
+}
+
+func CreateCompatibleBitmap(hdc HDC, nWidth, nHeight int32) HBITMAP {
+	ret, _, _ := syscall.Syscall(createCompatibleBitmap, 3,
+		uintptr(hdc),
+		uintptr(nWidth),
+		uintptr(nHeight))
 
 	return HBITMAP(ret)
 }
@@ -1280,6 +1310,20 @@ func GetDeviceCaps(hdc HDC, nIndex int32) int32 {
 	return int32(ret)
 }
 
+func GetDIBits(hdc HDC, hbmp HBITMAP, uStartScan uint32, cScanLines uint32, lpvBits *byte, lpbi *BITMAPINFO, uUsage uint32) int32 {
+	ret, _, _ := syscall.Syscall9(getDIBits, 7,
+		uintptr(hdc),
+		uintptr(hbmp),
+		uintptr(uStartScan),
+		uintptr(cScanLines),
+		uintptr(unsafe.Pointer(lpvBits)),
+		uintptr(unsafe.Pointer(lpbi)),
+		uintptr(uUsage),
+		0,
+		0)
+	return int32(ret)
+}
+
 func GetEnhMetaFile(lpszMetaFile *uint16) HENHMETAFILE {
 	ret, _, _ := syscall.Syscall(getEnhMetaFile, 1,
 		uintptr(unsafe.Pointer(lpszMetaFile)),
@@ -1361,6 +1405,15 @@ func GetTextMetrics(hdc HDC, lptm *TEXTMETRIC) bool {
 	return ret != 0
 }
 
+func GetViewportOrgEx(hdc HDC, lpPoint *POINT) bool {
+	ret, _, _ := syscall.Syscall(getViewportOrgEx, 2,
+		uintptr(hdc),
+		uintptr(unsafe.Pointer(lpPoint)),
+		0)
+
+	return ret != 0
+}
+
 func LineTo(hdc HDC, nXEnd, nYEnd int32) bool {
 	ret, _, _ := syscall.Syscall(lineTo, 3,
 		uintptr(hdc),
@@ -1387,6 +1440,15 @@ func PlayEnhMetaFile(hdc HDC, hemf HENHMETAFILE, lpRect *RECT) bool {
 		uintptr(hdc),
 		uintptr(hemf),
 		uintptr(unsafe.Pointer(lpRect)))
+
+	return ret != 0
+}
+
+func Polyline(hdc HDC, lppt unsafe.Pointer, cPoints int32) bool {
+	ret, _, _ := syscall.Syscall(polyline, 3,
+		uintptr(hdc),
+		uintptr(lppt),
+		uintptr(cPoints))
 
 	return ret != 0
 }
@@ -1492,6 +1554,18 @@ func SetTextColor(hdc HDC, crColor COLORREF) COLORREF {
 	ret, _, _ := syscall.Syscall(setTextColor, 2,
 		uintptr(hdc),
 		uintptr(crColor),
+		0)
+
+	return COLORREF(ret)
+}
+
+func SetViewportOrgEx(hdc HDC, x, y int32, lpPoint *POINT) COLORREF {
+	ret, _, _ := syscall.Syscall6(setViewportOrgEx, 4,
+		uintptr(hdc),
+		uintptr(x),
+		uintptr(y),
+		uintptr(unsafe.Pointer(lpPoint)),
+		0,
 		0)
 
 	return COLORREF(ret)

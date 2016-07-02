@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// +build windows
+
 package win
 
 const (
@@ -133,7 +135,7 @@ const (
 
 // ListView notifications
 const (
-	LVN_FIRST = -100
+	LVN_FIRST = ^uint32(99) // -100
 
 	LVN_ITEMCHANGING      = LVN_FIRST - 0
 	LVN_ITEMCHANGED       = LVN_FIRST - 1

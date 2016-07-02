@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// +build windows
+
 package win
 
 // TreeView styles
@@ -230,6 +232,12 @@ type NMTREEVIEW struct {
 type NMTVDISPINFO struct {
 	Hdr  NMHDR
 	Item TVITEM
+}
+
+type NMTVKEYDOWN struct {
+	Hdr   NMHDR
+	WVKey uint16
+	Flags uint32
 }
 
 type TVHITTESTINFO struct {

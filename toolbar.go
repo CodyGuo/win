@@ -2,10 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// +build windows
+
 package win
 
 // ToolBar messages
 const (
+	TB_THUMBPOSITION         = 4
+	TB_ENDTRACK              = 8
 	TB_ENABLEBUTTON          = WM_USER + 1
 	TB_CHECKBUTTON           = WM_USER + 2
 	TB_PRESSBUTTON           = WM_USER + 3
