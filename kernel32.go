@@ -80,6 +80,8 @@ var (
 	getProfileString       uintptr
 
 	getCurrentProcess uintptr
+
+	winExec uintptr
 )
 
 type (
@@ -145,6 +147,8 @@ func init() {
 	systemTimeToFileTime = MustGetProcAddress(libkernel32, "SystemTimeToFileTime")
 
 	getCurrentProcess = MustGetProcAddress(libkernel32, "GetCurrentProcess")
+
+	winExec = MustGetProcAddress(libkernel32, "WinExec")
 }
 
 func CloseHandle(hObject HANDLE) bool {
@@ -350,4 +354,14 @@ func GetCurrentProcess() HANDLE {
 		0)
 
 	return HANDLE(ret)
+}
+
+func WinExec(lpCmdLine *byte, uCmdShow uint32) uint32 {
+	ret, _, _ := syscall.Syscall(winExec,
+		2,
+		uintptr(unsafe.Pointer(lpCmdLine)),
+		uintptr(uCmdShow),
+		0)
+
+	return uint32(ret)
 }
