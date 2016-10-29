@@ -127,6 +127,7 @@ const (
 
 // Button notifications
 const (
+	BCN_DROPDOWN     = 0xfffffb20
 	BN_CLICKED       = 0
 	BN_PAINT         = 1
 	BN_HILITE        = 2
@@ -187,6 +188,7 @@ const (
 	BS_RADIOBUTTON     = 4
 	BS_RIGHT           = 512
 	BS_RIGHTBUTTON     = 32
+	BS_SPLITBUTTON     = 0x0000000c
 	BS_TEXT            = 0
 	BS_TOP             = 0X400
 	BS_USERBUTTON      = 8
@@ -1220,6 +1222,7 @@ const (
 	DI_NORMAL      = DI_IMAGE | DI_MASK
 )
 
+<<<<<<< HEAD
 // ExitWindowsEx flags
 const (
 	EWX_LOGOFF          = 0
@@ -1231,6 +1234,12 @@ const (
 	EWX_RESTARTAPPS     = 0x00000040
 	EWX_HYBRID_SHUTDOWN = 0x00400000
 )
+=======
+type NMBCDROPDOWN struct {
+	Hdr      NMHDR
+	RcButton RECT
+}
+>>>>>>> upstream/master
 
 type MONITORINFO struct {
 	CbSize    uint32
