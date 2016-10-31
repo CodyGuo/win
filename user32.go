@@ -1222,7 +1222,6 @@ const (
 	DI_NORMAL      = DI_IMAGE | DI_MASK
 )
 
-<<<<<<< HEAD
 // ExitWindowsEx flags
 const (
 	EWX_LOGOFF          = 0
@@ -1234,12 +1233,11 @@ const (
 	EWX_RESTARTAPPS     = 0x00000040
 	EWX_HYBRID_SHUTDOWN = 0x00400000
 )
-=======
+
 type NMBCDROPDOWN struct {
 	Hdr      NMHDR
 	RcButton RECT
 }
->>>>>>> upstream/master
 
 type MONITORINFO struct {
 	CbSize    uint32
