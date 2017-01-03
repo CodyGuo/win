@@ -187,6 +187,9 @@ var (
 	shGetSpecialFolderPath uintptr
 	shParseDisplayName     uintptr
 	shell_NotifyIcon       uintptr
+
+	// CodyGuo
+	shellExecute uintptr
 )
 
 func init() {
@@ -203,6 +206,9 @@ func init() {
 	shGetSpecialFolderPath = MustGetProcAddress(libshell32, "SHGetSpecialFolderPathW")
 	shParseDisplayName = MustGetProcAddress(libshell32, "SHParseDisplayName")
 	shell_NotifyIcon = MustGetProcAddress(libshell32, "Shell_NotifyIconW")
+
+	// CodyGuo
+	shellExecute = MustGetProcAddress(libshell32, "ShellExecuteW")
 }
 
 func DragAcceptFiles(hWnd HWND, fAccept bool) bool {
@@ -294,4 +300,17 @@ func Shell_NotifyIcon(dwMessage uint32, lpdata *NOTIFYICONDATA) bool {
 		0)
 
 	return ret != 0
+}
+
+func ShellExecute(hwnd HWND, lpOperation, lpFile, lpParameters, lpDirectory *byte, nShowCmd int) HINSTANCE {
+	ret, _, _ := syscall.Syscall6(shellExecute,
+		6,
+		uintptr(hwnd),
+		uintptr(unsafe.Pointer(lpOperation)),
+		uintptr(unsafe.Pointer(lpFile)),
+		uintptr(unsafe.Pointer(lpParameters)),
+		uintptr(unsafe.Pointer(lpDirectory)),
+		uintptr(nShowCmd))
+
+	return HINSTANCE(ret)
 }

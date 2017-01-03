@@ -1614,7 +1614,9 @@ var (
 	updateWindow               uintptr
 	windowFromPoint            uintptr
 
+	// codyguo
 	exitWindowsEx uintptr
+	setWindowRgn  uintptr
 )
 
 func init() {
@@ -1745,6 +1747,7 @@ func init() {
 
 	// codyguo
 	exitWindowsEx = MustGetProcAddress(libuser32, "ExitWindowsEx")
+	setWindowRgn = MustGetProcAddress(libuser32, "SetWindowRgn")
 
 }
 
@@ -2837,4 +2840,13 @@ func ExitWindowsEx(uFlags, dwReason uint32) bool {
 		0)
 
 	return ret != 0
+}
+
+func SetWindowRgn(hWnd HWND, hRgn HRGN, bRedraw bool) int32 {
+	ret, _, _ := syscall.Syscall(setWindowRgn, 3,
+		uintptr(hWnd),
+		uintptr(hRgn),
+		uintptr(BoolToBOOL(bRedraw)))
+
+	return int32(ret)
 }

@@ -735,6 +735,9 @@ type (
 	HPALETTE     HGDIOBJ
 	HPEN         HGDIOBJ
 	HREGION      HGDIOBJ
+
+	//codyguo
+	HRGN HGDIOBJ
 )
 
 type PIXELFORMATDESCRIPTOR struct {
@@ -1022,6 +1025,9 @@ var (
 	stretchBlt             uintptr
 	swapBuffers            uintptr
 	textOut                uintptr
+
+	// codyguo
+	createRoundRectRgn uintptr
 )
 
 func init() {
@@ -1082,6 +1088,9 @@ func init() {
 	stretchBlt = MustGetProcAddress(libgdi32, "StretchBlt")
 	swapBuffers = MustGetProcAddress(libgdi32, "SwapBuffers")
 	textOut = MustGetProcAddress(libgdi32, "TextOutW")
+
+	// codyguo
+	createRoundRectRgn = MustGetProcAddress(libgdi32, "CreateRoundRectRgn")
 
 }
 
@@ -1625,4 +1634,16 @@ func TextOut(hdc HDC, nXStart, nYStart int32, lpString *uint16, cchString int32)
 		uintptr(cchString),
 		0)
 	return ret != 0
+}
+
+func CreateRoundRectRgn(nLeftRect, nTopRect, nRightRect, nBottomRect, nWidthEllipse, nHeightEllipse int32) HRGN {
+	ret, _, _ := syscall.Syscall6(createRoundRectRgn, 6,
+		uintptr(nLeftRect),
+		uintptr(nTopRect),
+		uintptr(nRightRect),
+		uintptr(nBottomRect),
+		uintptr(nWidthEllipse),
+		uintptr(nHeightEllipse))
+
+	return HRGN(ret)
 }
