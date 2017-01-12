@@ -1257,6 +1257,114 @@ type (
 	HWND      HANDLE
 )
 
+// codyguo
+const (
+	DEVICE_NOTIFY_WINDOW_HANDLE         = 0x00000000
+	DEVICE_NOTIFY_SERVICE_HANDLE        = 0x00000001
+	DEVICE_NOTIFY_ALL_INTERFACE_CLASSES = 0x00000004
+)
+
+const (
+	DBT_APPYBEGIN            = 0x0000
+	DBT_APPYEND              = 0x0001
+	DBT_DEVNODES_CHANGED     = 0x0007
+	DBT_QUERYCHANGECONFIG    = 0x0017
+	DBT_CONFIGCHANGED        = 0x0018
+	DBT_CONFIGCHANGECANCELED = 0x0019
+	DBT_MONITORCHANGE        = 0x001B
+	DBT_SHELLLOGGEDON        = 0x0020
+	DBT_CONFIGMGAPI32        = 0x0022
+	DBT_VXDINITCOMPLETE      = 0x0023
+	DBT_VOLLOCKQUERYLOCK     = 0x8041
+	DBT_VOLLOCKLOCKTAKEN     = 0x8042
+	DBT_VOLLOCKLOCKFAILED    = 0x8043
+	DBT_VOLLOCKQUERYUNLOCK   = 0x8044
+	DBT_VOLLOCKLOCKRELEASED  = 0x8045
+	DBT_VOLLOCKUNLOCKFAILED  = 0x8046
+)
+
+const (
+	DBT_NO_DISK_SPACE           = 0x0047
+	DBT_LOW_DISK_SPACE          = 0x0048
+	DBT_CONFIGMGPRIVATE         = 0x7FFF
+	DBT_DEVICEARRIVAL           = 0x8000
+	DBT_DEVICEQUERYREMOVE       = 0x8001
+	DBT_DEVICEQUERYREMOVEFAILED = 0x8002
+	DBT_DEVICEREMOVEPENDING     = 0x8003
+	DBT_DEVICEREMOVECOMPLETE    = 0x8004
+	DBT_DEVICETYPESPECIFIC      = 0x8005
+	DBT_CUSTOMEVENT             = 0x8006
+	DBT_DEVTYP_OEM              = 0x00000000
+	DBT_DEVTYP_DEVNODE          = 0x00000001
+	DBT_DEVTYP_VOLUME           = 0x00000002
+	DBT_DEVTYP_PORT             = 0x00000003
+	DBT_DEVTYP_NET              = 0x00000004
+	DBT_DEVTYP_DEVICEINTERFACE  = 0x00000005
+	DBT_DEVTYP_HANDLE           = 0x00000006
+)
+
+// codyguo
+type (
+	HDEVNOTIFY uintptr
+)
+
+// codyguo
+/*
+typedef struct _GUID {
+    unsigned long  Data1;
+    unsigned short Data2;
+    unsigned short Data3;
+    unsigned char  Data4[ 8 ];
+} GUID;
+
+*/
+type GUID struct {
+	Data1 uint32
+	Data2 uint16
+	Data3 uint16
+	Data4 [8]byte
+}
+
+var (
+	// Compute Device Class: this is used to get the tree contrl root icon
+	GUID_DEVCLASS_COMPUTER = GUID{0x4D36E966, 0xE325, 0x11CE, [8]byte{0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18}}
+
+	// Copy from HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceClasses
+	GUID_DEVINTERFACE_LIST = []GUID{
+		// GUID_DEVINTERFACE_USB_DEVICE
+		{0xA5DCBF10, 0x6530, 0x11D2, [8]byte{0x90, 0x1F, 0x00, 0xC0, 0x4F, 0xB9, 0x51, 0xED}},
+
+		// GUID_DEVINTERFACE_DISK
+		{0x53f56307, 0xb6bf, 0x11d0, [8]byte{0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b}},
+
+		// GUID_DEVINTERFACE_HID,
+		{0x4D1E55B2, 0xF16F, 0x11CF, [8]byte{0x88, 0xCB, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30}},
+
+		// GUID_NDIS_LAN_CLASS
+		{0xad498944, 0x762f, 0x11d0, [8]byte{0x8d, 0xcb, 0x00, 0xc0, 0x4f, 0xc3, 0x35, 0x8c}},
+
+		// GUID_DEVINTERFACE_COMPORT
+		{0x86e0d1e0, 0x8089, 0x11d0, [8]byte{0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73}},
+
+		// GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR
+		{0x4D36E978, 0xE325, 0x11CE, [8]byte{0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18}},
+
+		//// GUID_DEVINTERFACE_PARALLEL
+		{0x97F76EF0, 0xF883, 0x11D0, [8]byte{0xAF, 0x1F, 0x00, 0x00, 0xF8, 0x00, 0x84, 0x5C}},
+
+		//// GUID_DEVINTERFACE_PARCLASS
+		{0x811FC6A5, 0xF728, 0x11D0, [8]byte{0xA5, 0x37, 0x00, 0x00, 0xF8, 0x75, 0x3E, 0xD1}},
+	}
+)
+
+type DEV_BROADCAST_DEVICEINTERFACE struct {
+	Dbcc_size       uint32
+	Dbcc_devicetype uint32
+	Dbcc_reserved   uint32
+	Dbcc_classguid  GUID
+	Dbcc_name       [1]byte
+}
+
 type MSG struct {
 	HWnd    HWND
 	Message uint32
@@ -1615,8 +1723,9 @@ var (
 	windowFromPoint            uintptr
 
 	// codyguo
-	exitWindowsEx uintptr
-	setWindowRgn  uintptr
+	exitWindowsEx               uintptr
+	setWindowRgn                uintptr
+	registerDeviceNotificationW uintptr
 )
 
 func init() {
@@ -1748,6 +1857,7 @@ func init() {
 	// codyguo
 	exitWindowsEx = MustGetProcAddress(libuser32, "ExitWindowsEx")
 	setWindowRgn = MustGetProcAddress(libuser32, "SetWindowRgn")
+	registerDeviceNotificationW = MustGetProcAddress(libuser32, "RegisterDeviceNotificationW")
 
 }
 
@@ -2849,4 +2959,13 @@ func SetWindowRgn(hWnd HWND, hRgn HRGN, bRedraw bool) int32 {
 		uintptr(BoolToBOOL(bRedraw)))
 
 	return int32(ret)
+}
+
+func RegisterDeviceNotificationW(hRecipient HANDLE, NotificationFilter uintptr, Flags uint32) HDEVNOTIFY {
+	ret, _, _ := syscall.Syscall(registerDeviceNotificationW, 3,
+		uintptr(hRecipient),
+		NotificationFilter,
+		uintptr(Flags))
+
+	return HDEVNOTIFY(ret)
 }
