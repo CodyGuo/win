@@ -54,6 +54,13 @@ const (
 	LOCALE_SISO639LANGNAME2  LCTYPE = 0x67
 )
 
+//codyguo
+const (
+	STANDARD_RIGHTS_REQUIRED = 0xF0000
+	SYNCHRONIZE              = 0x100000
+	PROCESS_ALL_ACCESS       = STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | 0xFFF
+)
+
 var (
 	// Library
 	libkernel32 uintptr
@@ -84,6 +91,8 @@ var (
 	getCurrentProcess uintptr
 
 	winExec uintptr
+	// codyguo
+	openProcess uintptr
 )
 
 type (
@@ -151,6 +160,8 @@ func init() {
 	getCurrentProcess = MustGetProcAddress(libkernel32, "GetCurrentProcess")
 
 	winExec = MustGetProcAddress(libkernel32, "WinExec")
+	//codyguo
+	openProcess = MustGetProcAddress(libkernel32, "OpenProcess")
 }
 
 func CloseHandle(hObject HANDLE) bool {
@@ -366,4 +377,14 @@ func WinExec(lpCmdLine *byte, uCmdShow uint32) uint32 {
 		0)
 
 	return uint32(ret)
+}
+
+func OpenProcess(dwDesiredAccess uint32, bInheritHandle bool, dwProcessId uint32) HANDLE {
+	ret, _, _ := syscall.Syscall(openProcess,
+		3,
+		uintptr(dwDesiredAccess),
+		uintptr(BoolToBOOL(bInheritHandle)),
+		uintptr(dwProcessId))
+
+	return HANDLE(ret)
 }
